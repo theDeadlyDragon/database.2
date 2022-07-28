@@ -4,6 +4,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Security.AccessControl;
 
+
 namespace database.Columns;
 
 public class ColumnString : IColumn
@@ -23,9 +24,9 @@ public class ColumnString : IColumn
     public void add<T>(T input)
     {
         checkType(typeof(T),_type);
-        
-        if(typeof(T) != _type)
-            Console.WriteLine("done");
+
+        var maxWordLength = Settings.Instance().maxWordLength;
+        var minWordLength = Settings.Instance().minWordLength;
         
         string inputString = Convert.ToString(input);
         string[] parsed = (inputString).Split(" ");
@@ -34,12 +35,40 @@ public class ColumnString : IColumn
         
         foreach (var temp in parsed)
         {
+            List<int> instruction = new List<int>();
+           int numberMaxWord = temp.Length / maxWordLength;
+           int restWord = temp.Length % maxWordLength;
+
+           foreach (var i in Enumerable.Range(0, numberMaxWord))
+               instruction.Add(numberMaxWord);
+           
+           if(restWord != 0)
+               instruction.Add(restWord);
+
+           int start = 0;
+           foreach (var wordLenght in instruction)
+           {
+               var a = temp.Substring(start, start + wordLenght);
+               start += wordLenght;
+
+               Console.Out.WriteLine(a);
+           }
+          
+           
+           //Console.Out.WriteLine($"number of rest : {restWord} ms");
+           //Console.Out.WriteLine($"number of large : {numberMaxWord} ms");
+
+           Console.WriteLine(String.Join(", ", instruction));
+           
+           if(parsed[parsed.Length-1] != temp)
+               
+           
             keys.Add(addStringData(temp));
         }
         
         indexData.Add(lastEntry++,keys);
         
-        Console.WriteLine("sdf");
+
 
     }
 
@@ -70,39 +99,69 @@ public class ColumnString : IColumn
 
     public List<int> contains<G>(G value)
     {
+        var watch = new System.Diagnostics.Stopwatch();
+        watch.Start();
         checkType(typeof(G),_type);
         
+        updateStringIndex();
+        
         string[] input = Convert.ToString(value).Split(" ");
-        List<int> output = new List<int>();
+        List<int> output = new List<int>();                                         
+        List<int> wordSequence = new List<int>();                                   //store char sequence of the input value 
+        List<int> data = new List<int>(indexData.Keys.ToArray());           //stores the index data for contains query
 
-        List<int> start = new List<int>(indexData.Keys.ToArray());
+        
 
+        //check if key exist in hashmap gives the line locations in start
         for (int i = 0; i < input.Length; i++)
         {
             List<int> loopOutput = new List<int>(); 
             if (!stringIndex.ContainsKey(input[i])) 
-                return output;
+                return null;
+            
             List<int> temp = stringIndex[input[i]];
 
             foreach (int indexPlace in temp)
             {
-                if(start.Contains(indexPlace))
+                if(data.Contains(indexPlace))
                     loopOutput.Add(indexPlace);
                 
             }
-            start = loopOutput;
-        }
-        
-        List<int> charSequence = new List<int>();
-        foreach (var key in input)
-        {
-            charSequence.Add(stringObjects.IndexOf(key));
+            data = loopOutput;
         }
 
-        foreach (var temp in start)
+        
+        wordSequence = WordSequence(input);
+        output = new List<int>(data);
+        
+        foreach (var index in data)
         {
-            
+            List<int> temp = indexData[index];
+
+            int firstWord = temp.IndexOf(wordSequence.First());
+
+            if (temp.Count - firstWord < wordSequence.Count)
+                output.Remove(index);
+
+            else
+            {
+                for (int i = 0; i < wordSequence.Count; i++)
+                {
+                    if (temp[i + firstWord] != wordSequence[i])
+                    {
+                        output.Remove(index);
+                    }
+                }
+            }
+
+ 
         }
+        watch.Stop();
+        Console.WriteLine($"Execution Time: {watch.ElapsedMilliseconds} ms");
+                
+            
+
+        
 
         return output;
     }
@@ -110,44 +169,20 @@ public class ColumnString : IColumn
     public List<int> equals<G>(G value)
     {
         checkType(typeof(G),_type);
-        string valueString = Convert.ToString(value);
-        string[] input = Convert.ToString(value).Split(" ");
         List<int> output = new List<int>();
-        List<int> start = new List<int>(indexData.Keys.ToArray());
+        List<int> wordSequence = WordSequence(Convert.ToString(value).Split(" "));
+        
+        List<int> data = contains(value);
 
-        for (int i = 0; i < input.Length; i++)
+        if(data == null)
+            return output;
+        
+        foreach (int index in data)
         {
-            List<int> loopOutput = new List<int>(); 
-            if (!stringIndex.ContainsKey(input[i])) 
-                return output;
-            List<int> temp = stringIndex[input[i]];
-
-            foreach (int indexPlace in temp)
-            {
-                if(start.Contains(indexPlace))
-                    loopOutput.Add(indexPlace);
-                
-            }
-            start = loopOutput;
-        }
-
-        foreach (var index in start)
-        {
-            if (indexData[index].Count == input.Length)
+            if(indexData[index].Count == wordSequence.Count)
                 output.Add(index);
         }
 
-        start = output;
-        output = new List<int>();
-
-        foreach (var index in start)
-        {
-            if (valueString == get<string>(index)) 
-                start.Add(index);
-        }
-        
-
-        
         return output;
     }
 
@@ -199,5 +234,23 @@ public class ColumnString : IColumn
     {
         if(a != b) 
             throw new NotSupportedException($"got: {a} but expected: {b}");
+    }
+
+ 
+    
+    /**returns indexlist of the word sequence currently stored in memory**/
+    private List<int> WordSequence(string[] input)
+    {
+        List<int> output = new List<int>();
+        foreach (var key in input)
+        {
+            if (stringObjects.Contains(key))
+                output.Add(stringObjects.IndexOf(key));
+            else
+                return null;
+        }
+        
+
+        return output;
     }
 }

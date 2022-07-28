@@ -16,26 +16,40 @@ using database.Columns;
 // database.addTable(temp);
 
 
+var watch = new System.Diagnostics.Stopwatch();
+
+FileReader f = new FileReader();
+var inputData= f.ReadFile("t.txt");
 
 var a = new ColumnString();
-a.add("this is amazing");
-a.add("this is garbage");
-a.add("garbage this is");
-a.add("get is this");
+
+watch.Start();
+for(int i = 0; i < 2; i++)
+{
+    a.add(inputData[i]);
+}
+watch.Stop();
+Console.WriteLine($"Execution Time: {watch.ElapsedMilliseconds} ms");
 
 
-a.get<string>(0);
+watch.Reset();
 
-var output = a.contains("this is garbage");
+watch.Start();
+var output = a.contains("is");
+watch.Stop();
 
-//Console.Out.WriteLine(a.equals("this is garbage"));
+//Console.Out.WriteLine(output.Count);
 
 
 
-foreach (var VARIABLE in output)
+/*foreach (var VARIABLE in output)
 {
     
     Console.Out.WriteLine(a.get<string>(VARIABLE));
-}
+}*/
 
-Console.WriteLine();
+Console.WriteLine($"Execution Time: {watch.ElapsedMilliseconds} ms");
+
+Console.WriteLine("done");
+
+
