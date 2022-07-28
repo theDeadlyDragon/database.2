@@ -1,0 +1,15 @@
+/Users/maurice/RiderProjects/database/database/bin/Debug/net6.0/database
+/Users/maurice/RiderProjects/database/database/bin/Debug/net6.0/database.deps.json
+/Users/maurice/RiderProjects/database/database/bin/Debug/net6.0/database.runtimeconfig.json
+/Users/maurice/RiderProjects/database/database/bin/Debug/net6.0/database.dll
+/Users/maurice/RiderProjects/database/database/bin/Debug/net6.0/database.pdb
+/Users/maurice/RiderProjects/database/database/obj/Debug/net6.0/database.csproj.AssemblyReference.cache
+/Users/maurice/RiderProjects/database/database/obj/Debug/net6.0/database.GeneratedMSBuildEditorConfig.editorconfig
+/Users/maurice/RiderProjects/database/database/obj/Debug/net6.0/database.AssemblyInfoInputs.cache
+/Users/maurice/RiderProjects/database/database/obj/Debug/net6.0/database.AssemblyInfo.cs
+/Users/maurice/RiderProjects/database/database/obj/Debug/net6.0/database.csproj.CoreCompileInputs.cache
+/Users/maurice/RiderProjects/database/database/obj/Debug/net6.0/database.dll
+/Users/maurice/RiderProjects/database/database/obj/Debug/net6.0/refint/database.dll
+/Users/maurice/RiderProjects/database/database/obj/Debug/net6.0/database.pdb
+/Users/maurice/RiderProjects/database/database/obj/Debug/net6.0/database.genruntimeconfig.cache
+/Users/maurice/RiderProjects/database/database/obj/Debug/net6.0/ref/database.dll
